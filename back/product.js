@@ -15,7 +15,7 @@ const getProduct = () => {
     //first we call the api 
     //returns in json format
     .then(function (product) {
-        console.log(product)
+        //console.log(product)
         //prints array to console
         const productTitle = document.getElementById("title");
         productTitle.textContent = product.name;
@@ -49,14 +49,24 @@ addToCart.addEventListener("click", () => {
     };
    let cartArray = []
    let arrayHasBeenModified = 0;
+   if (productObject.color == false || productObject.quantity == 0 || productObject.quantity > 100) {
+    console.log('error');
+/*add style effects here to signal to user that they must enter values */
+
+
+
+
+
+
+   } else {
     if (localStorage.getItem("cartArray") !== null) {
         let existingProducts = JSON.parse(localStorage.getItem("cartArray"));
-        console.log(existingProducts);
+        //console.log(existingProducts);
         for (let i = 0; i < existingProducts.length; i++) {
             let existingProductColor = existingProducts[i].color;
             let existingProductQuantity = existingProducts[i].quantity;
             let existingProductId = existingProducts[i].id;
-            console.log(existingProductColor, productObject.color, existingProductId, productObject.id)
+            //console.log(existingProductColor, productObject.color, existingProductId, productObject.id)
             if(existingProductId === productObject.id && existingProductColor === productObject.color) {
                 let newQuantity = parseInt(existingProductQuantity) + parseInt(productObject.quantity);
                 let newQuantityString = newQuantity.toString();
@@ -79,6 +89,7 @@ addToCart.addEventListener("click", () => {
         cartArray.push(productObject)
         localStorage.setItem("cartArray", JSON.stringify(cartArray))
     }
+}
 });
 
 // TO ADD TO CART
