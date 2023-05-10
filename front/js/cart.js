@@ -91,7 +91,7 @@ getCartProducts()
 let updateTotalPrice = () => {
     const cartTotalPriceContainer = document.getElementById("totalPrice");
     let priceArray = [];
-    if (cartStorage.length == 0) {
+    if (!cartStorage || cartStorage.length == 0) {
         cartTotalPriceContainer.innerText = "0";
     } else {
         for(i in cartStorage) {
@@ -126,9 +126,12 @@ updateTotalPrice()
 let updateTotalQuantity = () => {
     const cartTotalQuantityContainer = document.getElementById("totalQuantity");
     let sumQuantity = 0;
-    if (cartStorage === null) {
+    if (!cartStorage || cartStorage.length == 0) {
         cartTotalQuantityContainer.innerText = "0";
-        cartProductContainer.innerHTML += "<h2>Votre panier est vide!</h2>"
+        let panierVideMessage = document.createElement("h2");
+        panierVideMessage.innerText += "Votre panier est vide!"
+        panierVideMessage.style.textAlign = "center";
+        cartProductContainer.appendChild(panierVideMessage);
     } else {
         for (let i = 0; i < cartStorage.length; i++) {
         sumQuantity += parseInt(cartStorage[i].quantity);
@@ -216,8 +219,8 @@ emailField.addEventListener("change", () => {
 const buttonCommander = document.getElementById("order");
 buttonCommander.addEventListener("click", (event) => {
     event.preventDefault();
-    if(cartStorage === null) {
-        alert("Votre panier est vide!")
+    if(!cartStorage || cartStorage.length == 0) {
+        alert("Votre panier est vide!");
     } else if (!firstNameField.value || !lastNameField.value || !addressField.value || !cityField.value || !emailField.value) {
         if(!firstNameField.value) {
         firstNameField.style.border = "1.5px Solid #f33";
