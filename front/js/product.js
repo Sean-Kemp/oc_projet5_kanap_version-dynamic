@@ -1,22 +1,21 @@
+/* ------------------------------ PAGE PRODUIT ------------------------------ */
 
-
+//Récupération de l'id du produit à afficher
 const productURL = window.location.href;
 const str = productURL;
 const url = new URL(str);
 const id = url.searchParams.get("id");
 
+//Récupération des données du produit depuis l'api
 const api = `http://localhost:3000/api/products/${id}`
 
+//Fonction pour créer les éléments HTML contenants les infos sur le produit
 const getProduct = () => {
     fetch(api)
     .then(function (res) {
         return res.json()
     })
-    //first we call the api 
-    //returns in json format
     .then(function (product) {
-        //console.log(product)
-        //prints array to console
         const productTitle = document.getElementById("title");
         productTitle.textContent = product.name;
         const productPrice = document.getElementById("price");
@@ -34,29 +33,30 @@ const getProduct = () => {
         }
     })
 }
-
 getProduct();
 
-const colorOptions = document.querySelector("#colors");
-const getProductQuantity = document.querySelector("#quantity");
+//Déclaration des variables pour champs couleur/quantité
+const colorField = document.getElementById("colors");
+const quantityField = document.getElementById("quantity");
 
+//Fonction pour permettre l'ajout des produits dans le panier (stocker les données dans le local storage)
 const addToCart = document.getElementById("addToCart");
 addToCart.addEventListener("click", () => {
+    //Objet pour stocker valuers couleur, quantité et id
     let productObject = { 
         quantity : document.getElementById("quantity").value,
         color : document.getElementById("colors").value,
         id : id
     };
+    //Déclaration du tableau pour stocker les infos dans local storage
    let cartArray = []
    let arrayHasBeenModified = 0;
+   //Si aucune valeur de quantité ou de couleur n'a été sélectionnée, un message d'erreur s'affiche:
    if (productObject.color == false && (productObject.quantity == 0 || productObject.quantity > 100)) {
-        //alert("* Veuillez sélectionner une couleur et une quantité entre 0 et 100.");
-        const colorField = document.getElementById("colors");
         colorField.style.border = "1.5px Solid #f33";
-        const quantityField = document.getElementById("quantity");
         quantityField.style.border = "1.5px Solid #f33";
         let alertGeneral = document.createElement('p');
-        let quantityContainer = document.getElementById('quantityField');
+        let quantityContainer = document.getElementById("quantityContainer");
         alertGeneral.textContent = "* Veuillez sélectionner une couleur et une quantité entre 0 et 100."
         alertGeneral.style.color = "#fbbcbc";
         alertGeneral.style.fontSize = "15px";
@@ -64,10 +64,8 @@ addToCart.addEventListener("click", () => {
         quantityContainer.appendChild(alertGeneral);
         quantityContainer.classList.add("alertParent");
         clearErrors(alertGeneral);
-
+    //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
    } else if (productObject.color == false) {
-        //alert("* Veuillez sélectionner une couleur.");
-        const colorField = document.getElementById("colors");
         colorField.style.border = "1.5px Solid #f33";
         let alertColor = document.createElement('p');
         let colorContainer = document.getElementById('colorField');
@@ -78,12 +76,11 @@ addToCart.addEventListener("click", () => {
         colorContainer.appendChild(alertColor);
         colorContainer.classList.add("alertParent");
         clearErrors(alertColor);
+    //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
    } else if (productObject.quantity == 0 || productObject.quantity > 100) {
-        //alert("* Veuillez sélectionner une quantité entre 0 et 100.");
-        const quantityField = document.getElementById("quantity");
         quantityField.style.border = "1.5px Solid #f33";
         let alertQuantity = document.createElement('p');
-        let quantityContainer = document.getElementById('quantityField');
+        let quantityContainer = document.getElementById("quantityContainer");
         alertQuantity.textContent = "* Veuillez sélectionner une quantité entre 0 et 100."
         alertQuantity.style.color = "#fbbcbc";
         alertQuantity.style.fontSize = "15px";
@@ -91,10 +88,10 @@ addToCart.addEventListener("click", () => {
         quantityContainer.appendChild(alertQuantity);
         quantityContainer.classList.add("alertParent");
         clearErrors(alertQuantity);
+    //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
     } else {
+    //Vérifier s'il y a des produits déjà stockés dans le local storage
     if (localStorage.getItem("cartArray") !== null) {
-        const quantityField = document.getElementById("quantity");
-        const colorField = document.getElementById("colors");
         quantityField.style.border = "0px";
         colorField.style.border = "0px";
         let existingProducts = JSON.parse(localStorage.getItem("cartArray"));
@@ -102,6 +99,7 @@ addToCart.addEventListener("click", () => {
             let existingProductColor = existingProducts[i].color;
             let existingProductQuantity = existingProducts[i].quantity;
             let existingProductId = existingProducts[i].id;
+            //Si l'article existe déjà dans le local storage, seule la quantité est mise à jour:
             if(existingProductId === productObject.id && existingProductColor === productObject.color) {
                 let newQuantity = parseInt(existingProductQuantity) + parseInt(productObject.quantity);
                 let newQuantityString = newQuantity.toString();
@@ -113,18 +111,18 @@ addToCart.addEventListener("click", () => {
                 arrayHasBeenModified = 1;
             } else {
                 cartArray.push(existingProducts[i])
-                
             }   
         }
         if(arrayHasBeenModified == 0) {
             cartArray.push(productObject)
         }
     localStorage.setItem('cartArray', JSON.stringify(cartArray))
-    } else if(localStorage.getItem("cartArray") === null) {
+    //Si le local storage est vide, le tableau est poussé vers le local storage.
+    } else if (localStorage.getItem("cartArray") === null) {
         cartArray.push(productObject)
         localStorage.setItem("cartArray", JSON.stringify(cartArray))
     }
-    //alert("Le produit a été ajouté au panier.");
+    //Affichage d'un message de confirmation de l'enregistrement de la commande  
     const productInfoContainer = document.getElementById("productInfoContainer");
     let successMessage = document.createElement('p');
     successMessage.textContent = "Le produit a été ajouté au panier."
@@ -134,13 +132,9 @@ addToCart.addEventListener("click", () => {
     productInfoContainer.appendChild(successMessage);
     clearErrors(successMessage);
 }
-
-
 });
 
-
-
-
+//Fonction pour enlever les messages d'erreur après modification par l'utilisateur
 const clearErrors = (data) => {
     const colorField = document.getElementById("colors");
     const quantityField = document.getElementById("quantity");
