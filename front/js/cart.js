@@ -50,7 +50,6 @@ const getCartProducts = () => {
                 deleteItem.addEventListener("click" , (event) => {
                     event.preventDefault();
                     let myArticle = deleteItem.closest('article');
-                    console.log(myArticle);
                     //L'article est supprimé de la page:
                     myArticle.remove();
                     //L'article est supprimé dans le local storage:
@@ -82,7 +81,7 @@ const getCartProducts = () => {
                         updateTotalQuantity();
                     });
                 });
-            })
+        })
     }
 }
 getCartProducts()
@@ -168,7 +167,7 @@ firstNameField.addEventListener("change", () => {
         firstNameError.innerText = "Veuillez saisir un prénom valide (sans caractères spéciaux).";
         errorFirstName = true;
     }
-})
+});
 
 //Validation du champ nom:
 lastNameField.addEventListener("change", () => {
@@ -183,7 +182,7 @@ lastNameField.addEventListener("change", () => {
         lastNameError.innerText = "Veuillez saisir un nom valide (sans caractères spéciaux).";
         errorLastName = true;
     }
-})
+});
 
 //Validation du champ adresse:
 addressField.addEventListener("change", () => {
@@ -198,7 +197,7 @@ addressField.addEventListener("change", () => {
         addressError.innerText = "Veuillez indiquer une adresse valide.";
         errorAddress = true;
     }
-})
+});
 
 //Validation du champ ville:
 cityField.addEventListener("change", () => {
@@ -213,7 +212,7 @@ cityField.addEventListener("change", () => {
         cityError.innerText = "Veuillez indiquer une ville valide (sans caractères spéciaux).";
         errorCity = true;
     }
-})
+});
 
 //Validation du champ email:
 emailField.addEventListener("change", () => {
@@ -228,7 +227,7 @@ emailField.addEventListener("change", () => {
         emailError.innerText = "Veuillez indiquer un email valide.";
         errorEmail = true;
     }
-})
+});
 
 //Event listener pour passe la commande:
 const buttonCommander = document.getElementById("order");
@@ -311,9 +310,8 @@ buttonCommander.addEventListener("click", (event) => {
     })
     //Le local storage est vidé:
     localStorage.clear();
-}
-}
-)
+    }
+});
 
 
 

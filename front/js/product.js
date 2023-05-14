@@ -55,8 +55,8 @@ addToCart.addEventListener("click", () => {
    if (productObject.color == false && (productObject.quantity == 0 || productObject.quantity > 100)) {
         colorField.style.border = "1.5px Solid #f33";
         quantityField.style.border = "1.5px Solid #f33";
-        let alertGeneral = document.createElement('p');
-        let quantityContainer = document.getElementById("quantityContainer");
+        const alertGeneral = document.createElement('p');
+        const quantityContainer = document.getElementById("quantityContainer");
         alertGeneral.textContent = "* Veuillez sélectionner une couleur et une quantité entre 0 et 100."
         alertGeneral.style.color = "#fbbcbc";
         alertGeneral.style.fontSize = "15px";
@@ -67,8 +67,8 @@ addToCart.addEventListener("click", () => {
     //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
    } else if (productObject.color == false) {
         colorField.style.border = "1.5px Solid #f33";
-        let alertColor = document.createElement('p');
-        let colorContainer = document.getElementById('colorField');
+        const alertColor = document.createElement('p');
+        const colorContainer = document.getElementById('colorField');
         alertColor.textContent = "* Veuillez sélectionner une couleur."
         alertColor.style.color = "#fbbcbc";
         alertColor.style.fontSize = "15px";
@@ -79,8 +79,8 @@ addToCart.addEventListener("click", () => {
     //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
    } else if (productObject.quantity == 0 || productObject.quantity > 100) {
         quantityField.style.border = "1.5px Solid #f33";
-        let alertQuantity = document.createElement('p');
-        let quantityContainer = document.getElementById("quantityContainer");
+        const alertQuantity = document.createElement('p');
+        const quantityContainer = document.getElementById("quantityContainer");
         alertQuantity.textContent = "* Veuillez sélectionner une quantité entre 0 et 100."
         alertQuantity.style.color = "#fbbcbc";
         alertQuantity.style.fontSize = "15px";
@@ -124,7 +124,7 @@ addToCart.addEventListener("click", () => {
     }
     //Affichage d'un message de confirmation de l'enregistrement de la commande  
     const productInfoContainer = document.getElementById("productInfoContainer");
-    let successMessage = document.createElement('p');
+    const successMessage = document.createElement('p');
     successMessage.textContent = "Le produit a été ajouté au panier."
     successMessage.style.color = "#00ff45";
     successMessage.style.fontSize = "15px";
