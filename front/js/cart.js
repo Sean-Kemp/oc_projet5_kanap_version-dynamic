@@ -17,31 +17,58 @@ const getCartProducts = () => {
             return res.json()
         })
         .then(function (product) {
-            cartProductContainer.innerHTML += 
-            //HTML à insérer pour chaque produit dans le local storage
-            `<article class="cart__item" data-id="${id}" data-color="${color}">
-            <div class="cart__item__img">
-                <img src="${product.imageUrl}" alt="${product.altTxt}">
-            </div>
-            <div class="cart__item__content">
-                <div class="cart__item__content__description">
-                <h2>${product.name}</h2>
-                <p>${color}</p>
-                <p>€${product.price}</p>
-                </div>
+            const productArticle = document.createElement("article");
+            productArticle.classList.add("cart__item");
+            productArticle.setAttribute("data-id", `${id}`);
+            productArticle.setAttribute("data-color", `${color}`);
+            cartProductContainer.appendChild(productArticle);
+            const productImageDiv = document.createElement("div");
+            productImageDiv.classList.add("cart__item__img");
+            productArticle.appendChild(productImageDiv);
+            const productImg = document.createElement("img");
+            productImg.setAttribute("src", `${product.imageUrl}`);
+            productImg.setAttribute("alt", `${product.altTxt}`);
+            productImageDiv.appendChild(productImg);
+            const productInfoDiv = document.createElement("div");
+            productInfoDiv.classList.add("cart__item__content");
+            productArticle.appendChild(productInfoDiv);
+            const productDescriptionDiv = document.createElement("div");
+            productDescriptionDiv.classList.add("cart__item__content__description");
+            productInfoDiv.appendChild(productDescriptionDiv);
+            const productHeading = document.createElement("h2");
+            productHeading.innerText = `${product.name}`;
+            productDescriptionDiv.appendChild(productHeading);
+            const productColor = document.createElement("p");
+            productColor.innerText = `${color}`;
+            productDescriptionDiv.appendChild(productColor);
+            const productPrice = document.createElement("p");
+            productPrice.innerText = `${product.price}`;
+            productDescriptionDiv.appendChild(productPrice);
+            const productSettingsDiv = document.createElement("div");
+            productSettingsDiv.classList.add("cart__item__content__settings");
+            productInfoDiv.appendChild(productSettingsDiv);
+            const productQuantitySettingsDiv = document.createElement("div");
+            productQuantitySettingsDiv.classList.add("cart__item__content__settings__quantity");
+            productSettingsDiv.appendChild(productQuantitySettingsDiv);
+            const productQuantityField = document.createElement("p");
+            productQuantityField.innerText = "Qté : ";
+            productQuantitySettingsDiv.appendChild(productQuantityField);
+            const productQuantityInput = document.createElement("input");
+            productQuantityInput.classList.add("itemQuantity");
+            productQuantityInput.setAttribute("type", "number");
+            productQuantityInput.setAttribute("name", "itemQuantity");
+            productQuantityInput.setAttribute("min", "1");
+            productQuantityInput.setAttribute("max", "100");
+            productQuantityInput.setAttribute("value", `${quantity}`);
+            productQuantitySettingsDiv.appendChild(productQuantityInput);
+            const productDeleteDiv = document.createElement("div");
+            productDeleteDiv.classList.add("cart__item__content__settings__delete");
+            productSettingsDiv.appendChild(productDeleteDiv);
+            const productDelete = document.createElement("a");
+            productDelete.classList.add("deleteItem");
+            productDelete.innerText = "Supprimer";
+            productDeleteDiv.appendChild(productDelete);
 
-
-                <div class="cart__item__content__settings">
-                <div class="cart__item__content__settings__quantity">
-                    <p>Qté : </p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${quantity}">
-                </div>
-                <div class="cart__item__content__settings__delete">
-                    <a class="deleteItem">Supprimer</a>
-                </div>
-                </div>
-            </div>
-            </article>`
         })
         //Intégration de la fonctionnalité "supprimer":
         .then(function() {
@@ -59,6 +86,13 @@ const getCartProducts = () => {
                     //Les totaux en bas de la liste sont mis à jour:
                     updateTotalPrice();
                     updateTotalQuantity();
+                    let newCartStorage = JSON.parse(localStorage.getItem("cartArray"));
+                    console.log(newCartStorage)
+                        if (newCartStorage.length == 0) {
+                            localStorage.clear();
+                        }
+
+
                 })
             })
         })
@@ -68,17 +102,32 @@ const getCartProducts = () => {
                 changeQuantity.forEach((changeQuantityItem) => {
                     changeQuantityItem.addEventListener("change", (event) => {
                         event.preventDefault();
-                        choiceQuantity = Number(changeQuantityItem.value);
-                        let myArticle = changeQuantityItem.closest('article');
-                        //La quantité est mise à jour dans le local storage:
-                        let itemToChange = cartStorage.find
-                        ( element => element.id === myArticle.dataset.id && element.color === myArticle.dataset.color );
-                        parseChoiceQuantity = parseInt(choiceQuantity);
-                        itemToChange.quantity = parseChoiceQuantity;
-                        localStorage.setItem("cartArray", JSON.stringify(cartStorage));
-                        //Les totaux en bas de la liste sont mis à jour:
-                        updateTotalPrice();
-                        updateTotalQuantity();
+                            let totalQuantityCheck = Number(document.getElementById("totalQuantity").textContent);
+                            console.log(totalQuantityCheck);
+                            choiceQuantity = Number(changeQuantityItem.value);
+                            let myArticle = changeQuantityItem.closest('article');
+                            let currentQuantity = cartStorage.find( element => element.id === myArticle.dataset.id && element.color === myArticle.dataset.color )
+                            console.log(currentQuantity.quantity);
+                            parseChoiceQuantity = parseInt(choiceQuantity);
+                            if((choiceQuantity - Math.floor(choiceQuantity)) !== 0){
+                                alert("Veuillez saisir un nombre entier (sans décimales).");
+                                location.reload(true);
+                            }else if(((totalQuantityCheck - currentQuantity.quantity) + parseChoiceQuantity) <= 100){
+                                //La quantité est mise à jour dans le local storage:
+                                let itemToChange = cartStorage.find
+                                ( element => element.id === myArticle.dataset.id && element.color === myArticle.dataset.color );
+                                itemToChange.quantity = parseChoiceQuantity;
+                                localStorage.setItem("cartArray", JSON.stringify(cartStorage));
+                                //Les totaux en bas de la liste sont mis à jour:
+                                updateTotalPrice();
+                                updateTotalQuantity();
+                            }else if(((totalQuantityCheck - currentQuantity.quantity) + parseChoiceQuantity) > 100) {
+                                alert(`Le panier a une capacité maximale de 100 articles.`);
+                                location.reload();
+                            }else{
+                                console.log("error")
+                            }
+
                     });
                 });
         })
@@ -150,6 +199,7 @@ const cityField = document.getElementById("city");
 const emailField = document.getElementById("email");
 
 //Déclaration des RegExs la validation du formulaire
+const nameRegex = new RegExp("^([\\w\\s\\-àâäéèêëïîôöùûüç]{2,35})$");
 const textRegex = new RegExp("^([\\w\\s\\-\\.,’'àâäéèêëïîôöùûüç]{2,35})$");
 const addressRegex = new RegExp("^([\\w\\s\\-.&(),’'àâäéèêëïîôöùûüç]{5,200})$");
 const emailRegex = new RegExp("^([\\w_.!#$%&'*+\\-/=?^`{|}~]+)@([a-zA-Z_]+)?(\\.[a-zA-Z]+)(\\.[a-zA-Z]{2,3})?");
@@ -157,7 +207,7 @@ const emailRegex = new RegExp("^([\\w_.!#$%&'*+\\-/=?^`{|}~]+)@([a-zA-Z_]+)?(\\.
 //Validation du champ prénom:
 firstNameField.addEventListener("change", () => {
     let firstNameError = document.getElementById("firstNameErrorMsg");
-    let validateFirstName = textRegex.test(firstNameField.value);
+    let validateFirstName = nameRegex.test(firstNameField.value);
     //Si l'entrée passe la validation, pas d'erreur:
     if (validateFirstName) {
         firstNameError.innerText = " ";
@@ -172,7 +222,7 @@ firstNameField.addEventListener("change", () => {
 //Validation du champ nom:
 lastNameField.addEventListener("change", () => {
     let lastNameError = document.getElementById("lastNameErrorMsg");
-    let validateLastName = textRegex.test(lastNameField.value);
+    let validateLastName = nameRegex.test(lastNameField.value);
     //Si l'entrée passe la validation, pas d'erreur:
     if (validateLastName) {
         lastNameError.innerText = " ";

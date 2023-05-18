@@ -29,7 +29,10 @@ const getProduct = () => {
         itemImage[0].appendChild(productImage);
         const productColor = document.getElementById("colors");
         for (color in product.colors) {
-            productColor.innerHTML += `<option value="${product.colors[color]}">${product.colors[color]}</option>`
+            const productColorOption = document.createElement("option");
+            productColorOption.setAttribute("value", `${product.colors[color]}`)
+            productColorOption.textContent = `${product.colors[color]}`;
+            productColor.appendChild(productColorOption);
         }
     })
 }
@@ -38,6 +41,7 @@ getProduct();
 //Déclaration des variables pour champs couleur/quantité
 const colorField = document.getElementById("colors");
 const quantityField = document.getElementById("quantity");
+
 
 //Fonction pour permettre l'ajout des produits dans le panier (stocker les données dans le local storage)
 const addToCart = document.getElementById("addToCart");
@@ -57,7 +61,7 @@ addToCart.addEventListener("click", () => {
         quantityField.style.border = "1.5px Solid #f33";
         const alertGeneral = document.createElement('p');
         const quantityContainer = document.getElementById("quantityContainer");
-        alertGeneral.textContent = "* Veuillez sélectionner une couleur et une quantité entre 0 et 100."
+        alertGeneral.textContent = "* Veuillez sélectionner une couleur et une quantité entre 0 et 100 (sans décimales)."
         alertGeneral.style.color = "#fbbcbc";
         alertGeneral.style.fontSize = "15px";
         alertGeneral.classList.add("alert")
@@ -77,60 +81,86 @@ addToCart.addEventListener("click", () => {
         colorContainer.classList.add("alertParent");
         clearErrors(alertColor);
     //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
-   } else if (productObject.quantity == 0 || productObject.quantity > 100) {
+   } else if (productObject.quantity == 0 || productObject.quantity > 100 || productObject.quantity < 0 || (productObject.quantity - Math.floor(productObject.quantity)) != 0) {
         quantityField.style.border = "1.5px Solid #f33";
         const alertQuantity = document.createElement('p');
         const quantityContainer = document.getElementById("quantityContainer");
-        alertQuantity.textContent = "* Veuillez sélectionner une quantité entre 0 et 100."
+        alertQuantity.textContent = "* Veuillez sélectionner une quantité entre 0 et 100 (sans décimales)."
         alertQuantity.style.color = "#fbbcbc";
         alertQuantity.style.fontSize = "15px";
         alertQuantity.classList.add("alert")
         quantityContainer.appendChild(alertQuantity);
         quantityContainer.classList.add("alertParent");
         clearErrors(alertQuantity);
-    //Si aucune valeur de couleur n'a été sélectionnée, un message d'erreur s'affiche:
+    //Vérifier que la quantité saisie ne s'agit pas d'une décimale
+    } else if (Number.isInteger(productObject.quantity)) {
+    console.log(productObject.quantity);
     } else {
-    //Vérifier s'il y a des produits déjà stockés dans le local storage
+    let existingProducts = JSON.parse(localStorage.getItem("cartArray"));
     if (localStorage.getItem("cartArray") !== null) {
+        console.log(existingProducts.quantity)
+        function amount(item){
+            return Number(item.quantity);
+        }
+        function sum(prev, next){
+            return prev + next;
+        }
+        let existingProductsTotal = existingProducts.map(amount).reduce(sum);
+        console.log(existingProductsTotal)
         quantityField.style.border = "0px";
         colorField.style.border = "0px";
-        let existingProducts = JSON.parse(localStorage.getItem("cartArray"));
-        for (let i = 0; i < existingProducts.length; i++) {
-            let existingProductColor = existingProducts[i].color;
-            let existingProductQuantity = existingProducts[i].quantity;
-            let existingProductId = existingProducts[i].id;
-            //Si l'article existe déjà dans le local storage, seule la quantité est mise à jour:
-            if(existingProductId === productObject.id && existingProductColor === productObject.color) {
-                let newQuantity = parseInt(existingProductQuantity) + parseInt(productObject.quantity);
-                let newQuantityString = newQuantity.toString();
-                cartArray.push({
-                    quantity : newQuantityString,
-                    color : existingProductColor,
-                    id : existingProductId
-                });
-                arrayHasBeenModified = 1;
-            } else {
-                cartArray.push(existingProducts[i])
-            }   
+        console.log(existingProductsTotal + Number(productObject.quantity));
+        if ((existingProductsTotal + Number(productObject.quantity)) < 101) {
+            for (let i = 0; i < existingProducts.length; i++) {
+                let existingProductColor = existingProducts[i].color;
+                let existingProductQuantity = existingProducts[i].quantity;
+                let existingProductId = existingProducts[i].id;
+                    //Si l'article existe déjà dans le local storage, seule la quantité est mise à jour:
+                    if(existingProductId === productObject.id && existingProductColor === productObject.color) {
+                    let newQuantity = parseInt(existingProductQuantity) + parseInt(productObject.quantity);
+                    let newQuantityString = newQuantity.toString();
+                    cartArray.push({
+                        quantity : newQuantityString,
+                        color : existingProductColor,
+                        id : existingProductId
+                    });
+                    arrayHasBeenModified = 1;
+                    
+                    } else {
+                        cartArray.push(existingProducts[i])
+                    }   
+                    localStorage.setItem('cartArray', JSON.stringify(cartArray))
+            }
+            if(arrayHasBeenModified == 0) {
+                cartArray.push(productObject)
+                localStorage.setItem('cartArray', JSON.stringify(cartArray))
+            }
+        //Affichage d'un message de confirmation de l'enregistrement de la commande  
+        const productInfoContainer = document.getElementById("productInfoContainer");
+        const successMessage = document.createElement('p');
+        successMessage.textContent = "Le produit a été ajouté au panier."
+        successMessage.style.color = "#00ff45";
+        successMessage.style.fontSize = "15px";
+        successMessage.style.textAlign = "center";
+        productInfoContainer.appendChild(successMessage);
+        clearErrors(successMessage);
+        } else {
+            alert(`Le panier a une capacité maximale de 100 articles. Votre panier contient actuellement ${existingProductsTotal} articles.`);
         }
-        if(arrayHasBeenModified == 0) {
-            cartArray.push(productObject)
-        }
-    localStorage.setItem('cartArray', JSON.stringify(cartArray))
     //Si le local storage est vide, le tableau est poussé vers le local storage.
     } else if (localStorage.getItem("cartArray") === null) {
         cartArray.push(productObject)
         localStorage.setItem("cartArray", JSON.stringify(cartArray))
+        //Affichage d'un message de confirmation de l'enregistrement de la commande  
+        const productInfoContainer = document.getElementById("productInfoContainer");
+        const successMessage = document.createElement('p');
+        successMessage.textContent = "Le produit a été ajouté au panier."
+        successMessage.style.color = "#00ff45";
+        successMessage.style.fontSize = "15px";
+        successMessage.style.textAlign = "center";
+        productInfoContainer.appendChild(successMessage);
+        clearErrors(successMessage);
     }
-    //Affichage d'un message de confirmation de l'enregistrement de la commande  
-    const productInfoContainer = document.getElementById("productInfoContainer");
-    const successMessage = document.createElement('p');
-    successMessage.textContent = "Le produit a été ajouté au panier."
-    successMessage.style.color = "#00ff45";
-    successMessage.style.fontSize = "15px";
-    successMessage.style.textAlign = "center";
-    productInfoContainer.appendChild(successMessage);
-    clearErrors(successMessage);
 }
 });
 
@@ -146,7 +176,7 @@ const clearErrors = (data) => {
     quantityField.addEventListener("change", () => {
         quantityField.style.border = "0px";
         data.remove();
-    })
+    });
 };
 
 
